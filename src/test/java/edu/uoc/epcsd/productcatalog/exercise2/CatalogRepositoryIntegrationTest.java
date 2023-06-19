@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
 
 import java.util.Optional;
@@ -28,6 +27,7 @@ public class CatalogRepositoryIntegrationTest {
 
     @Test
     public void whenFindById(){
+        // Arrange
         Long id = 7L;
 
         Category category = Category.builder()
@@ -39,9 +39,11 @@ public class CatalogRepositoryIntegrationTest {
 
         entityManager.persistAndFlush(CategoryEntity.fromDomain(category));
 
+        // Act
         Optional<Category> found = categoryRepository.findCategoryById(id);
-        if(found.isEmpty()) return;
 
+        // Assert
+        assertThat(found).isPresent();
         assertThat(found.get().getId()).isEqualTo(category.getId());
     }
 

@@ -12,6 +12,7 @@ public class ItemUnitTest {
 
     @Test
     public void whenNewItem_nonOperational(){
+        // Arrange
         Item testItem = Item
                 .builder()
                 .productId(1L)
@@ -19,6 +20,7 @@ public class ItemUnitTest {
                 .status(ItemStatus.NON_OPERATIONAL)
                 .build();
 
+        // Act and Assert
         assertThat(testItem.getStatus()).isEqualTo(ItemStatus.NON_OPERATIONAL);
     }
 }

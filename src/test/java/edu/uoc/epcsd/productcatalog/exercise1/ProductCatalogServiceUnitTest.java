@@ -2,40 +2,55 @@ package edu.uoc.epcsd.productcatalog.exercise1;
 
 import edu.uoc.epcsd.productcatalog.domain.Product;
 import edu.uoc.epcsd.productcatalog.domain.repository.ProductRepository;
-import edu.uoc.epcsd.productcatalog.domain.service.ItemService;
-import edu.uoc.epcsd.productcatalog.domain.service.ProductService;
 import edu.uoc.epcsd.productcatalog.domain.service.ProductServiceImpl;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.internal.verification.VerificationModeFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Bean;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 public class ProductCatalogServiceUnitTest {
 
-    @MockBean
+    @Mock
     private ProductRepository productRepository;
 
+    @InjectMocks
+    private ProductServiceImpl productServiceImpl;
+
     @Test
-    public void findProductById() {
+    public void whenFindProductByIdWithValidId_thenCorrectProductReturned() {
+        // Arrange
         Long id = 1L;
+        Product product = new Product();
+        product.setId(id);
+        Mockito.when(productRepository.findProductById(id)).thenReturn(Optional.of(product));
 
-        Optional<Product> found = productRepository.findProductById(id);
+        // Act
+        Optional<Product> found = productServiceImpl.findProductById(id);
 
-        if(found.isEmpty()) return;
-
+        // Assert
+        assertThat(found).isPresent();
         assertThat(found.get().getId()).isEqualTo(id);
         verifyFindByIdIsCalledOnce(id);
-        Mockito.when(productRepository.findProductById(id)).thenReturn();
+    }
+
+    @Test
+    public void whenFindProductByIdWithInvalidId_thenExceptionIsThrown() {
+        // Arrange
+        Long id = 1L;
+        Mockito.when(productRepository.findProductById(id)).thenReturn(Optional.empty());
+
+        // Act and Assert
+        assertThrows(IllegalArgumentException.class, () -> productServiceImpl.findProductById(id).orElseThrow(IllegalArgumentException::new));
+        verifyFindByIdIsCalledOnce(id);
     }
 
     private void verifyFindByIdIsCalledOnce(Long id) {
