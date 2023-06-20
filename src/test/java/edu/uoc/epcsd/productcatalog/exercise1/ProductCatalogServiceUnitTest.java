@@ -2,39 +2,34 @@ package edu.uoc.epcsd.productcatalog.exercise1;
 
 import edu.uoc.epcsd.productcatalog.domain.Product;
 import edu.uoc.epcsd.productcatalog.domain.repository.ProductRepository;
-import edu.uoc.epcsd.productcatalog.domain.service.ProductServiceImpl;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.internal.verification.VerificationModeFactory;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
 public class ProductCatalogServiceUnitTest {
 
-    @Mock
+    @MockBean
     private ProductRepository productRepository;
-
-    @InjectMocks
-    private ProductServiceImpl productServiceImpl;
 
     @Test
     public void whenFindProductByIdWithValidId_thenCorrectProductReturned() {
         // Arrange
         Long id = 1L;
-        Product product = new Product();
-        product.setId(id);
+        Product product = Product.builder()
+                .id(id)
+                .build();
         Mockito.when(productRepository.findProductById(id)).thenReturn(Optional.of(product));
 
         // Act
-        Optional<Product> found = productServiceImpl.findProductById(id);
+        Optional<Product> found = productRepository.findProductById(id);
 
         // Assert
         assertThat(found).isPresent();
@@ -49,7 +44,7 @@ public class ProductCatalogServiceUnitTest {
         Mockito.when(productRepository.findProductById(id)).thenReturn(Optional.empty());
 
         // Act and Assert
-        assertThrows(IllegalArgumentException.class, () -> productServiceImpl.findProductById(id).orElseThrow(IllegalArgumentException::new));
+        assertThrows(IllegalArgumentException.class, () -> productRepository.findProductById(id).orElseThrow(IllegalArgumentException::new));
         verifyFindByIdIsCalledOnce(id);
     }
 
